@@ -3,11 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:infinite_listview/infinite_listview.dart';
 
 /// Created by Marcin Szałek
-
 ///Define a text mapper to transform the text displayed by the picker
 typedef String TextMapper(String numberText);
 
@@ -31,28 +29,28 @@ class NumberPicker extends StatelessWidget {
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewHeight = kDefaultListViewCrossAxisSize,
+    this.numberToDisplay = 5,
     this.step = 1,
     this.zeroPad = false,
     this.highlightSelectedValue = true,
     this.decoration,
-    this.haptics = false,
-    this.textStyle,
-    this.selectedTextStyle,
   })  : assert(initialValue != null),
         assert(minValue != null),
         assert(maxValue != null),
-        assert(maxValue >= minValue),
+        assert(maxValue > minValue),
         assert(initialValue >= minValue && initialValue <= maxValue),
         assert(step > 0),
         selectedIntValue = initialValue,
         selectedDecimalValue = -1,
         decimalPlaces = 0,
-        intScrollController = ScrollController(
-          initialScrollOffset: (initialValue - minValue) ~/ step * itemExtent,
+        intScrollController = new ScrollController(
+          initialScrollOffset: (initialValue - minValue) ~/
+              step *
+              itemExtent, //eg 1-10, start 5: (5-1)/1*50=4*50=200
         ),
         scrollDirection = Axis.horizontal,
         decimalScrollController = null,
-        listViewWidth = 3 * itemExtent,
+        listViewWidth = numberToDisplay * itemExtent,
         infiniteLoop = false,
         integerItemCount = (maxValue - minValue) ~/ step + 1,
         super(key: key);
@@ -67,19 +65,17 @@ class NumberPicker extends StatelessWidget {
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewWidth = kDefaultListViewCrossAxisSize,
+    this.numberToDisplay = 5,
     this.step = 1,
     this.scrollDirection = Axis.vertical,
     this.infiniteLoop = false,
     this.zeroPad = false,
     this.highlightSelectedValue = true,
     this.decoration,
-    this.haptics = false,
-    this.textStyle,
-    this.selectedTextStyle,
   })  : assert(initialValue != null),
         assert(minValue != null),
         assert(maxValue != null),
-        assert(maxValue >= minValue),
+        assert(maxValue > minValue),
         assert(initialValue >= minValue && initialValue <= maxValue),
         assert(step > 0),
         assert(scrollDirection != null),
@@ -87,16 +83,16 @@ class NumberPicker extends StatelessWidget {
         selectedDecimalValue = -1,
         decimalPlaces = 0,
         intScrollController = infiniteLoop
-            ? InfiniteScrollController(
+            ? new InfiniteScrollController(
                 initialScrollOffset:
                     (initialValue - minValue) ~/ step * itemExtent,
               )
-            : ScrollController(
+            : new ScrollController(
                 initialScrollOffset:
                     (initialValue - minValue) ~/ step * itemExtent,
               ),
         decimalScrollController = null,
-        listViewHeight = 3 * itemExtent,
+        listViewHeight = numberToDisplay * itemExtent,
         integerItemCount = (maxValue - minValue) ~/ step + 1,
         super(key: key);
 
@@ -111,31 +107,29 @@ class NumberPicker extends StatelessWidget {
     this.decimalPlaces = 1,
     this.itemExtent = kDefaultItemExtent,
     this.listViewWidth = kDefaultListViewCrossAxisSize,
+    this.numberToDisplay = 3,
     this.highlightSelectedValue = true,
     this.decoration,
-    this.haptics = false,
-    this.textStyle,
-    this.selectedTextStyle,
   })  : assert(initialValue != null),
         assert(minValue != null),
         assert(maxValue != null),
         assert(decimalPlaces != null && decimalPlaces > 0),
-        assert(maxValue >= minValue),
+        assert(maxValue > minValue),
         assert(initialValue >= minValue && initialValue <= maxValue),
         selectedIntValue = initialValue.floor(),
         selectedDecimalValue = ((initialValue - initialValue.floorToDouble()) *
                 math.pow(10, decimalPlaces))
             .round(),
-        intScrollController = ScrollController(
+        intScrollController = new ScrollController(
           initialScrollOffset: (initialValue.floor() - minValue) * itemExtent,
         ),
-        decimalScrollController = ScrollController(
+        decimalScrollController = new ScrollController(
           initialScrollOffset: ((initialValue - initialValue.floorToDouble()) *
                       math.pow(10, decimalPlaces))
                   .roundToDouble() *
               itemExtent,
         ),
-        listViewHeight = 3 * itemExtent,
+        listViewHeight = numberToDisplay * itemExtent,
         step = 1,
         scrollDirection = Axis.vertical,
         integerItemCount = maxValue.floor() - minValue.floor() + 1,
@@ -167,6 +161,9 @@ class NumberPicker extends StatelessWidget {
 
   ///width of list view in pixels
   final double listViewWidth;
+
+  ///number of numbers displayed at any one time
+  final int numberToDisplay;
 
   ///ScrollController used for integer list
   final ScrollController intScrollController;
@@ -205,33 +202,26 @@ class NumberPicker extends StatelessWidget {
   ///Amount of items
   final int integerItemCount;
 
-  ///Whether to trigger haptic pulses or not
-  final bool haptics;
-
-  ///Default Style Of Numbers
-  final TextStyle textStyle;
-
-  ///Style Of Selected Number
-  final TextStyle selectedTextStyle;
-
   //
   //----------------------------- PUBLIC ------------------------------
   //
 
   /// Used to animate integer number picker to new selected value
-  Future<void> animateInt(int valueToSelect) {
+  void animateInt(int valueToSelect) {
     int diff = valueToSelect - minValue;
     int index = diff ~/ step;
-    return animateIntToIndex(index);
+    animateIntToIndex(index);
   }
 
   /// Used to animate integer number picker to new selected index
-  Future<void> animateIntToIndex(int index) =>
-      _animate(intScrollController, index * itemExtent);
+  void animateIntToIndex(int index) {
+    _animate(intScrollController, index * itemExtent);
+  }
 
   /// Used to animate decimal part of double value to new selected value
-  Future<void> animateDecimal(int decimalValue) =>
-      _animate(decimalScrollController, decimalValue * itemExtent);
+  void animateDecimal(int decimalValue) {
+    _animate(decimalScrollController, decimalValue * itemExtent);
+  }
 
   /// Used to animate decimal number picker to selected value
   void animateDecimalAndInteger(double valueToSelect) {
@@ -256,7 +246,7 @@ class NumberPicker extends StatelessWidget {
     if (decimalPlaces == 0) {
       return _integerListView(themeData);
     } else {
-      return Row(
+      return new Row(
         children: <Widget>[
           _integerListView(themeData),
           _decimalListView(themeData),
@@ -267,27 +257,27 @@ class NumberPicker extends StatelessWidget {
   }
 
   Widget _integerListView(ThemeData themeData) {
-    TextStyle defaultStyle = textStyle ?? themeData.textTheme.bodyText2;
-    TextStyle selectedStyle = selectedTextStyle ??
+    TextStyle defaultStyle = themeData.textTheme.bodyText2;
+    TextStyle selectedStyle =
         themeData.textTheme.headline5.copyWith(color: themeData.accentColor);
 
-    var listItemCount = integerItemCount + 2;
+    var listItemCount =
+        integerItemCount + numberToDisplay - 1; //3=>2, 7=>6, etc.
 
     return Listener(
       onPointerUp: (ev) {
         ///used to detect that user stopped scrolling
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         if (intScrollController.position.activity is HoldScrollActivity) {
           animateInt(selectedIntValue);
         }
       },
-      child: NotificationListener(
-        child: Container(
+      child: new NotificationListener(
+        child: new Container(
           height: listViewHeight,
           width: listViewWidth,
           child: Stack(
             children: <Widget>[
-              ListView.builder(
+              new ListView.builder(
                 scrollDirection: scrollDirection,
                 controller: intScrollController,
                 itemExtent: itemExtent,
@@ -302,12 +292,16 @@ class NumberPicker extends StatelessWidget {
                           ? selectedStyle
                           : defaultStyle;
 
-                  bool isExtra = index == 0 || index == listItemCount - 1;
+                  bool isExtra = index <= numberToDisplay ~/ 2 - 1 ||
+                      index >=
+                          listItemCount -
+                              (numberToDisplay ~/
+                                  2); //index == 0 || index == listItemCount - 1; 7: <=4 and >= 6-5 = 1
 
                   return isExtra
-                      ? Container() //empty first and last element
-                      : Center(
-                          child: Text(
+                      ? new Container() //empty first and last element
+                      : new Center(
+                          child: new Text(
                             getDisplayedValue(value),
                             style: itemStyle,
                           ),
@@ -328,9 +322,9 @@ class NumberPicker extends StatelessWidget {
   }
 
   Widget _decimalListView(ThemeData themeData) {
-    TextStyle defaultStyle = textStyle ?? themeData.textTheme.bodyText2;
-    TextStyle selectedStyle = selectedTextStyle ??
-        themeData.textTheme.headline5.copyWith(color: themeData.accentColor);
+    TextStyle defaultStyle = themeData.textTheme.bodyText2;
+    TextStyle selectedStyle =
+        themeData.textTheme.headline.copyWith(color: themeData.accentColor);
 
     int decimalItemCount =
         selectedIntValue == maxValue ? 3 : math.pow(10, decimalPlaces) + 2;
@@ -338,18 +332,17 @@ class NumberPicker extends StatelessWidget {
     return Listener(
       onPointerUp: (ev) {
         ///used to detect that user stopped scrolling
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         if (decimalScrollController.position.activity is HoldScrollActivity) {
           animateDecimal(selectedDecimalValue);
         }
       },
-      child: NotificationListener(
-        child: Container(
+      child: new NotificationListener(
+        child: new Container(
           height: listViewHeight,
           width: listViewWidth,
           child: Stack(
             children: <Widget>[
-              ListView.builder(
+              new ListView.builder(
                 controller: decimalScrollController,
                 itemExtent: itemExtent,
                 itemCount: decimalItemCount,
@@ -362,15 +355,18 @@ class NumberPicker extends StatelessWidget {
                           ? selectedStyle
                           : defaultStyle;
 
-                  bool isExtra = index == 0 || index == decimalItemCount - 1;
+                  bool isExtra = index <= numberToDisplay - 2 ||
+                      index >=
+                          decimalItemCount -
+                              (numberToDisplay -
+                                  2); //empty elements determined based on number to display
 
                   return isExtra
-                      ? Container() //empty first and last element
-                      : Center(
-                          child: Text(
-                            value.toString().padLeft(decimalPlaces, '0'),
-                            style: itemStyle,
-                          ),
+                      ? new Container() //empty first and last element
+                      : new Center(
+                          child: new Text(
+                              value.toString().padLeft(decimalPlaces, '0'),
+                              style: itemStyle),
                         );
                 },
               ),
@@ -388,20 +384,19 @@ class NumberPicker extends StatelessWidget {
   }
 
   Widget _integerInfiniteListView(ThemeData themeData) {
-    TextStyle defaultStyle = textStyle ?? themeData.textTheme.bodyText2;
-    TextStyle selectedStyle = selectedTextStyle ??
-        themeData.textTheme.headline5.copyWith(color: themeData.accentColor);
+    TextStyle defaultStyle = themeData.textTheme.body1;
+    TextStyle selectedStyle =
+        themeData.textTheme.headline.copyWith(color: themeData.accentColor);
 
     return Listener(
       onPointerUp: (ev) {
         ///used to detect that user stopped scrolling
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         if (intScrollController.position.activity is HoldScrollActivity) {
           _animateIntWhenUserStoppedScrolling(selectedIntValue);
         }
       },
-      child: NotificationListener(
-        child: Container(
+      child: new NotificationListener(
+        child: new Container(
           height: listViewHeight,
           width: listViewWidth,
           child: Stack(
@@ -418,8 +413,8 @@ class NumberPicker extends StatelessWidget {
                           ? selectedStyle
                           : defaultStyle;
 
-                  return Center(
-                    child: Text(
+                  return new Center(
+                    child: new Text(
                       getDisplayedValue(value),
                       style: itemStyle,
                     ),
@@ -451,7 +446,8 @@ class NumberPicker extends StatelessWidget {
   //
 
   int _intValueFromIndex(int index) {
-    index--;
+    index = index -
+        (numberToDisplay ~/ 2); //index--; //for extra elements. 3=>1, 7=>3
     index %= integerItemCount;
     return minValue + index * step;
   }
@@ -462,10 +458,12 @@ class NumberPicker extends StatelessWidget {
       int intIndexOfMiddleElement =
           (notification.metrics.pixels / itemExtent).round();
       if (!infiniteLoop) {
-        intIndexOfMiddleElement =
-            intIndexOfMiddleElement.clamp(0, integerItemCount - 1);
+        intIndexOfMiddleElement = intIndexOfMiddleElement.clamp(
+            0, integerItemCount - 1); //integerItemCount - numberToDisplay~/2
       }
-      int intValueInTheMiddle = _intValueFromIndex(intIndexOfMiddleElement + 1);
+      int intValueInTheMiddle = _intValueFromIndex(intIndexOfMiddleElement +
+          numberToDisplay ~/ 2); //3=> +1, 5=> +2, 7=> +3
+
       intValueInTheMiddle = _normalizeIntegerMiddleValue(intValueInTheMiddle);
 
       if (_userStoppedScrolling(notification, intScrollController)) {
@@ -489,9 +487,6 @@ class NumberPicker extends StatelessWidget {
             double decimalPart = _toDecimal(selectedDecimalValue);
             newValue = ((intValueInTheMiddle + decimalPart).toDouble());
           }
-        }
-        if (haptics) {
-          HapticFeedback.selectionClick();
         }
         onChanged(newValue);
       }
@@ -518,9 +513,6 @@ class NumberPicker extends StatelessWidget {
           decimalValueInTheMiddle != selectedDecimalValue) {
         double decimalPart = _toDecimal(decimalValueInTheMiddle);
         double newValue = ((selectedIntValue + decimalPart).toDouble());
-        if (haptics) {
-          HapticFeedback.selectionClick();
-        }
         onChanged(newValue);
       }
     }
@@ -533,6 +525,7 @@ class NumberPicker extends StatelessWidget {
   double _calculateCacheExtent(int itemCount) {
     double cacheExtent = 250.0; //default cache extent
     if ((itemCount - 2) * kDefaultItemExtent <= cacheExtent) {
+      //(count-2)*50<=250, count<=23
       cacheExtent = ((itemCount - 3) * kDefaultItemExtent);
     }
     return cacheExtent;
@@ -563,7 +556,6 @@ class NumberPicker extends StatelessWidget {
   ) {
     return notification is UserScrollNotification &&
         notification.direction == ScrollDirection.idle &&
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         scrollController.position.activity is! HoldScrollActivity;
   }
 
@@ -596,12 +588,10 @@ class NumberPicker extends StatelessWidget {
   }
 
   ///scroll to selected value
-  Future<void> _animate(ScrollController scrollController, double value) {
-    return scrollController.animateTo(
-      value,
-      duration: Duration(seconds: 1),
-      curve: ElasticOutCurve(),
-    );
+  _animate(ScrollController scrollController, double value) {
+    scrollController.animateTo(value,
+        duration: new Duration(milliseconds: 500),
+        curve: new ElasticOutCurve());
   }
 }
 
@@ -619,9 +609,9 @@ class _NumberPickerSelectedItemDecoration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: IgnorePointer(
-        child: Container(
+    return new Center(
+      child: new IgnorePointer(
+        child: new Container(
           width: isVertical ? double.infinity : itemExtent,
           height: isVertical ? itemExtent : double.infinity,
           decoration: decoration,
@@ -649,10 +639,6 @@ class NumberPickerDialog extends StatefulWidget {
   final bool zeroPad;
   final bool highlightSelectedValue;
   final Decoration decoration;
-  final TextMapper textMapper;
-  final bool haptics;
-  final TextStyle textStyle;
-  final TextStyle selectedTextStyle;
 
   ///constructor for integer values
   NumberPickerDialog.integer({
@@ -666,14 +652,10 @@ class NumberPickerDialog extends StatefulWidget {
     this.zeroPad = false,
     this.highlightSelectedValue = true,
     this.decoration,
-    this.textMapper,
-    this.haptics = false,
-    this.textStyle,
-    this.selectedTextStyle,
     Widget confirmWidget,
     Widget cancelWidget,
-  })  : confirmWidget = confirmWidget ?? Text("OK"),
-        cancelWidget = cancelWidget ?? Text("CANCEL"),
+  })  : confirmWidget = confirmWidget ?? new Text("OK"),
+        cancelWidget = cancelWidget ?? new Text("CANCEL"),
         decimalPlaces = 0,
         initialDoubleValue = -1.0;
 
@@ -687,22 +669,19 @@ class NumberPickerDialog extends StatefulWidget {
     this.titlePadding,
     this.highlightSelectedValue = true,
     this.decoration,
-    this.textMapper,
-    this.haptics = false,
-    this.textStyle,
-    this.selectedTextStyle,
     Widget confirmWidget,
     Widget cancelWidget,
-  })  : confirmWidget = confirmWidget ?? Text("OK"),
-        cancelWidget = cancelWidget ?? Text("CANCEL"),
+  })  : confirmWidget = confirmWidget ?? new Text("OK"),
+        cancelWidget = cancelWidget ?? new Text("CANCEL"),
         initialIntegerValue = -1,
         step = 1,
         infiniteLoop = false,
         zeroPad = false;
 
   @override
-  State<NumberPickerDialog> createState() => _NumberPickerDialogControllerState(
-      initialIntegerValue, initialDoubleValue);
+  State<NumberPickerDialog> createState() =>
+      new _NumberPickerDialogControllerState(
+          initialIntegerValue, initialDoubleValue);
 }
 
 class _NumberPickerDialogControllerState extends State<NumberPickerDialog> {
@@ -722,21 +701,16 @@ class _NumberPickerDialogControllerState extends State<NumberPickerDialog> {
 
   NumberPicker _buildNumberPicker() {
     if (widget.decimalPlaces > 0) {
-      return NumberPicker.decimal(
-        initialValue: selectedDoubleValue,
-        minValue: widget.minValue,
-        maxValue: widget.maxValue,
-        decimalPlaces: widget.decimalPlaces,
-        highlightSelectedValue: widget.highlightSelectedValue,
-        decoration: widget.decoration,
-        onChanged: _handleValueChanged,
-        textMapper: widget.textMapper,
-        haptics: widget.haptics,
-        textStyle: widget.textStyle,
-        selectedTextStyle: widget.selectedTextStyle,
-      );
+      return new NumberPicker.decimal(
+          initialValue: selectedDoubleValue,
+          minValue: widget.minValue,
+          maxValue: widget.maxValue,
+          decimalPlaces: widget.decimalPlaces,
+          highlightSelectedValue: widget.highlightSelectedValue,
+          decoration: widget.decoration,
+          onChanged: _handleValueChanged);
     } else {
-      return NumberPicker.integer(
+      return new NumberPicker.integer(
         initialValue: selectedIntValue,
         minValue: widget.minValue,
         maxValue: widget.maxValue,
@@ -746,26 +720,22 @@ class _NumberPickerDialogControllerState extends State<NumberPickerDialog> {
         highlightSelectedValue: widget.highlightSelectedValue,
         decoration: widget.decoration,
         onChanged: _handleValueChanged,
-        textMapper: widget.textMapper,
-        haptics: widget.haptics,
-        textStyle: widget.textStyle,
-        selectedTextStyle: widget.selectedTextStyle,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return new AlertDialog(
       title: widget.title,
       titlePadding: widget.titlePadding,
       content: _buildNumberPicker(),
       actions: [
-        FlatButton(
+        new FlatButton(
           onPressed: () => Navigator.of(context).pop(),
           child: widget.cancelWidget,
         ),
-        FlatButton(
+        new FlatButton(
             onPressed: () => Navigator.of(context).pop(widget.decimalPlaces > 0
                 ? selectedDoubleValue
                 : selectedIntValue),
