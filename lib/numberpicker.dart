@@ -245,11 +245,11 @@ class NumberPicker extends StatelessWidget {
       return _integerInfiniteListView(themeData, context);
     }
     if (decimalPlaces == 0) {
-      return _integerListView(themeData);
+      return _integerListView(themeData, context);
     } else {
       return new Row(
         children: <Widget>[
-          _integerListView(themeData),
+          _integerListView(themeData, context),
           _decimalListView(themeData, context),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
@@ -257,10 +257,10 @@ class NumberPicker extends StatelessWidget {
     }
   }
 
-  Widget _integerListView(ThemeData themeData) {
-    TextStyle defaultStyle = themeData.textTheme.bodyText2;
-    TextStyle selectedStyle =
-        themeData.textTheme.headline5.copyWith(color: themeData.accentColor);
+  //TODO: no.3 change
+  Widget _integerListView(ThemeData themeData, BuildContext context) {
+    TextStyle defaultStyle = TextStyle(color: Theme.of(context).primaryColor);
+    TextStyle selectedStyle = TextStyle(color: Color.fromRGBO(0, 255, 0, 1));
 
     var listItemCount =
         integerItemCount + numberToDisplay - 1; //3=>2, 7=>6, etc.
