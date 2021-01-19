@@ -260,9 +260,9 @@ class NumberPicker extends StatelessWidget {
   //TODO: no.3 change
   Widget _integerListView(ThemeData themeData, BuildContext context) {
     TextStyle defaultStyle =
-        TextStyle(color: Theme.of(context).primaryColor, fontSize: 21);
+        TextStyle(color: Theme.of(context).primaryColor, fontSize: 28);
     TextStyle selectedStyle =
-        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 25);
+        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 34);
 
     var listItemCount = integerItemCount + numberToDisplay - 1;
 
