@@ -259,11 +259,12 @@ class NumberPicker extends StatelessWidget {
 
   //TODO: no.3 change
   Widget _integerListView(ThemeData themeData, BuildContext context) {
-    TextStyle defaultStyle = TextStyle(color: Theme.of(context).primaryColor);
-    TextStyle selectedStyle = TextStyle(color: Color.fromRGBO(0, 255, 0, 1));
+    TextStyle defaultStyle =
+        TextStyle(color: Theme.of(context).primaryColor, fontSize: 18);
+    TextStyle selectedStyle =
+        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 22);
 
-    var listItemCount =
-        integerItemCount + numberToDisplay - 1; //3=>2, 7=>6, etc.
+    var listItemCount = integerItemCount + numberToDisplay - 1;
 
     return Listener(
       onPointerUp: (ev) {
@@ -323,8 +324,10 @@ class NumberPicker extends StatelessWidget {
   }
 
   Widget _decimalListView(ThemeData themeData, BuildContext context) {
-    TextStyle defaultStyle = TextStyle(color: Theme.of(context).primaryColor);
-    TextStyle selectedStyle = TextStyle(color: Color.fromRGBO(0, 255, 0, 1));
+    TextStyle defaultStyle =
+        TextStyle(color: Theme.of(context).primaryColor, fontSize: 18);
+    TextStyle selectedStyle =
+        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 22);
 
     int decimalItemCount =
         selectedIntValue == maxValue ? 3 : math.pow(10, decimalPlaces) + 2;
