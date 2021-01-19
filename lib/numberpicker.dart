@@ -242,7 +242,7 @@ class NumberPicker extends StatelessWidget {
     final ThemeData themeData = Theme.of(context);
 
     if (infiniteLoop) {
-      return _integerInfiniteListView(themeData);
+      return _integerInfiniteListView(themeData, context);
     }
     if (decimalPlaces == 0) {
       return _integerListView(themeData);
@@ -250,7 +250,7 @@ class NumberPicker extends StatelessWidget {
       return new Row(
         children: <Widget>[
           _integerListView(themeData),
-          _decimalListView(themeData),
+          _decimalListView(themeData, context),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       );
@@ -322,10 +322,9 @@ class NumberPicker extends StatelessWidget {
     );
   }
 
-  Widget _decimalListView(ThemeData themeData) {
-    TextStyle defaultStyle = themeData.textTheme.bodyText2;
-    TextStyle selectedStyle =
-        themeData.textTheme.headline.copyWith(color: themeData.accentColor);
+  Widget _decimalListView(ThemeData themeData, BuildContext context) {
+    TextStyle defaultStyle = TextStyle(color: Theme.of(context).primaryColor);
+    TextStyle selectedStyle = TextStyle(color: Color.fromRGBO(0, 255, 0, 1));
 
     int decimalItemCount =
         selectedIntValue == maxValue ? 3 : math.pow(10, decimalPlaces) + 2;
@@ -384,10 +383,11 @@ class NumberPicker extends StatelessWidget {
     );
   }
 
-  Widget _integerInfiniteListView(ThemeData themeData) {
-    TextStyle defaultStyle = themeData.textTheme.body1;
+  Widget _integerInfiniteListView(ThemeData themeData, BuildContext context) {
+    TextStyle defaultStyle =
+        TextStyle(color: Theme.of(context).primaryColor, fontSize: 18);
     TextStyle selectedStyle =
-        themeData.textTheme.headline.copyWith(color: themeData.accentColor);
+        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 22);
 
     return Listener(
       onPointerUp: (ev) {
