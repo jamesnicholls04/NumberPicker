@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:infinite_listview/infinite_listview.dart';
 
 /// Created by Marcin Szałek
+
 ///Define a text mapper to transform the text displayed by the picker
 typedef String TextMapper(String numberText);
 
@@ -29,7 +30,7 @@ class NumberPicker extends StatelessWidget {
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewHeight = kDefaultListViewCrossAxisSize,
-    this.numberToDisplay = 5,
+    this.numberToDisplay = 3,
     this.step = 1,
     this.zeroPad = false,
     this.highlightSelectedValue = true,
@@ -65,7 +66,7 @@ class NumberPicker extends StatelessWidget {
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewWidth = kDefaultListViewCrossAxisSize,
-    this.numberToDisplay = 5,
+    this.numberToDisplay = 3,
     this.step = 1,
     this.scrollDirection = Axis.vertical,
     this.infiniteLoop = false,
@@ -92,7 +93,7 @@ class NumberPicker extends StatelessWidget {
                     (initialValue - minValue) ~/ step * itemExtent,
               ),
         decimalScrollController = null,
-        listViewHeight = numberToDisplay * itemExtent,
+        listViewHeight = 3 * itemExtent,
         integerItemCount = (maxValue - minValue) ~/ step + 1,
         super(key: key);
 
@@ -129,7 +130,7 @@ class NumberPicker extends StatelessWidget {
                   .roundToDouble() *
               itemExtent,
         ),
-        listViewHeight = numberToDisplay * itemExtent,
+        listViewHeight = 3 * itemExtent,
         step = 1,
         scrollDirection = Axis.vertical,
         integerItemCount = maxValue.floor() - minValue.floor() + 1,
@@ -463,8 +464,10 @@ class NumberPicker extends StatelessWidget {
       }
       int intValueInTheMiddle = _intValueFromIndex(intIndexOfMiddleElement +
           numberToDisplay ~/ 2); //3=> +1, 5=> +2, 7=> +3
-
+      print("index: $intIndexOfMiddleElement");
+      print("middle value: $intValueInTheMiddle");
       intValueInTheMiddle = _normalizeIntegerMiddleValue(intValueInTheMiddle);
+      print("normalized middle value: $intValueInTheMiddle");
 
       if (_userStoppedScrolling(notification, intScrollController)) {
         //center selected value
@@ -590,8 +593,7 @@ class NumberPicker extends StatelessWidget {
   ///scroll to selected value
   _animate(ScrollController scrollController, double value) {
     scrollController.animateTo(value,
-        duration: new Duration(milliseconds: 500),
-        curve: new ElasticOutCurve());
+        duration: new Duration(seconds: 1), curve: new ElasticOutCurve());
   }
 }
 
