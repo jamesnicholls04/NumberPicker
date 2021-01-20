@@ -27,6 +27,8 @@ class NumberPicker extends StatelessWidget {
     @required this.minValue,
     @required this.maxValue,
     @required this.onChanged,
+    this.selectedFontSize,
+    this.unselectedFontSize,
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewHeight = kDefaultListViewCrossAxisSize,
@@ -63,6 +65,8 @@ class NumberPicker extends StatelessWidget {
     @required this.minValue,
     @required this.maxValue,
     @required this.onChanged,
+    @required this.unselectedFontSize,
+    @required this.selectedFontSize,
     this.textMapper,
     this.itemExtent = kDefaultItemExtent,
     this.listViewWidth = kDefaultListViewCrossAxisSize,
@@ -104,6 +108,8 @@ class NumberPicker extends StatelessWidget {
     @required this.minValue,
     @required this.maxValue,
     @required this.onChanged,
+    @required this.unselectedFontSize,
+    @required this.selectedFontSize,
     this.textMapper,
     this.decimalPlaces = 1,
     this.itemExtent = kDefaultItemExtent,
@@ -180,6 +186,9 @@ class NumberPicker extends StatelessWidget {
 
   ///If currently selected value should be highlighted
   final bool highlightSelectedValue;
+
+  final double selectedFontSize;
+  final double unselectedFontSize;
 
   ///Decoration to apply to central box where the selected value is placed
   final Decoration decoration;
@@ -259,10 +268,10 @@ class NumberPicker extends StatelessWidget {
 
   //TODO: no.3 change
   Widget _integerListView(ThemeData themeData, BuildContext context) {
-    TextStyle defaultStyle =
-        TextStyle(color: Theme.of(context).primaryColor, fontSize: 28);
-    TextStyle selectedStyle =
-        TextStyle(color: Color.fromRGBO(0, 255, 0, 1), fontSize: 34);
+    TextStyle defaultStyle = TextStyle(
+        color: Theme.of(context).primaryColor, fontSize: unselectedFontSize);
+    TextStyle selectedStyle = TextStyle(
+        color: Color.fromRGBO(0, 255, 0, 1), fontSize: selectedFontSize);
 
     var listItemCount = integerItemCount + numberToDisplay - 1;
 
@@ -707,6 +716,8 @@ class _NumberPickerDialogControllerState extends State<NumberPickerDialog> {
   NumberPicker _buildNumberPicker() {
     if (widget.decimalPlaces > 0) {
       return new NumberPicker.decimal(
+          selectedFontSize: 0,
+          unselectedFontSize: 0,
           initialValue: selectedDoubleValue,
           minValue: widget.minValue,
           maxValue: widget.maxValue,
@@ -718,6 +729,8 @@ class _NumberPickerDialogControllerState extends State<NumberPickerDialog> {
       return new NumberPicker.integer(
         initialValue: selectedIntValue,
         minValue: widget.minValue,
+        selectedFontSize: 0,
+        unselectedFontSize: 0,
         maxValue: widget.maxValue,
         step: widget.step,
         infiniteLoop: widget.infiniteLoop,
